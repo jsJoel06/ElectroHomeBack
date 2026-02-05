@@ -71,5 +71,20 @@ public class ProductoController {
         }
     }
 
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Producto> update(
+            @PathVariable Long id,
+            @RequestPart("producto") Producto producto ,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen
+    ) throws Exception {
+        producto.setId(id);
+        return ResponseEntity.ok(productoRepository.update(id, producto, imagen));
+    }
+
+    @DeleteMapping("/{id}")
+    private void delete(@PathVariable Long id){
+        productoRepository.delete(id);
+    }
+
 
 }

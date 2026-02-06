@@ -79,8 +79,7 @@ public class AuthController {
 
             // --- ASIGNACIÓN DE ROL POR DEFECTO ---
             // Opción A: Si usas un Set de Strings o Enums
-            userEntity.setRoles(Set.of(EROLE.CLIENT));
-
+            userEntity.setRoles(Set.of(EROLE.ADMIN));
 
             userEntityRepository.save(userEntity);
 

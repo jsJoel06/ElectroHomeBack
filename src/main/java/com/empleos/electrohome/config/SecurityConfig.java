@@ -8,6 +8,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -41,6 +42,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         // 1. Rutas totalmente abiertas (Login y Registro)
                         .requestMatchers("/api/auth/**", "/login").permitAll()
 
+
                         // 2. Solo lectura: Permitir que TODOS vean productos, categorías y fotos
                         .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/categorias/**", "/uploads/**").permitAll()
 
@@ -62,6 +64,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .maximumSessions(1)
                 )
+                .httpBasic(Customizer.withDefaults())
                 .build();
     }
 

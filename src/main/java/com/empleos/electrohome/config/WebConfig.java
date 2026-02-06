@@ -12,8 +12,14 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-       String rootPath = Paths.get("uploadss").toAbsolutePath().toString();
-       registry.addResourceHandler("/uploadss/**")
-               .addResourceLocations(rootPath);
+        // Esto obtiene la ruta real de la carpeta raíz de tu proyecto
+        String userDir = System.getProperty("user.dir");
+        String uploadsPath = "file:" + userDir + "/uploads/";
+
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations(uploadsPath);
+
+        // Log para que veas en la consola dónde está buscando realmente
+        System.out.println("Buscando fotos en: " + uploadsPath);
     }
 }

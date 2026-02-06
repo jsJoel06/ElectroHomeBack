@@ -37,32 +37,24 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable()) // Mantener deshabilitado si usas Postman/App móvil o manejas JWT manualmente
+                .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Rutas totalmente abiertas (Login y Registro)
-                        .requestMatchers("/api/auth/**", "/login").permitAll()
+                        // Permitimos las fotos y la API de lectura sin login
+                        .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/categorias/**").permitAll()
 
+                        // Protegemos el AddForm (Guardar/Editar)
+                        .requestMatchers(HttpMethod.POST, "/api/productos/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasAuthority("ADMIN")
 
-                        // 2. Solo lectura: Permitir que TODOS vean productos, categorías y fotos
-                        .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/categorias/**", "/uploads/**").permitAll()
-
-                        // 3. PROTECCIÓN TOTAL: Solo Joel (ADMIN) puede crear, editar o borrar
-                        // Esto protege las funciones de "Guardar" y "Editar" de tu AddForm
-                        .requestMatchers(HttpMethod.POST, "/api/productos/**", "/api/categorias/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/productos/**", "/api/categorias/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/productos/**", "/api/categorias/**").hasAuthority("ADMIN")
-
-                        // 4. Cualquier otra ruta requiere estar logueado
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/productos", true)
-                        .permitAll()
-                )
+                // Usamos Basic Auth en lugar de FormLogin para evitar redirecciones
+                .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        .maximumSessions(1)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .build();
     }

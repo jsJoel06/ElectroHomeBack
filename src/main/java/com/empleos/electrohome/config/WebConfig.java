@@ -12,14 +12,13 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Esto obtiene la ruta real de la carpeta raíz de tu proyecto
-        String userDir = System.getProperty("user.dir");
-        String uploadsPath = "file:" + userDir + "/uploads/";
-
+        // Esta ruta funciona en local y en la nube
+        // Spring buscará la carpeta 'uploads' que está al lado de tu pom.xml o jar
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(uploadsPath);
+                .addResourceLocations("file:uploads/");
 
-        // Log para que veas en la consola dónde está buscando realmente
-        System.out.println("Buscando fotos en: " + uploadsPath);
+        // Log para confirmar la ruta en los logs de Render
+        String absolutePath = new java.io.File("uploads").getAbsolutePath();
+        System.out.println("SISTEMA ACTIVO: Servidor buscando fotos en: " + absolutePath);
     }
 }

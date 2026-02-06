@@ -64,7 +64,6 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .maximumSessions(1)
                 )
-                .httpBasic(Customizer.withDefaults())
                 .build();
     }
 

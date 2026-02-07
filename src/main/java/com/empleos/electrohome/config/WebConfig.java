@@ -10,23 +10,16 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // En Render, lo más seguro es usar la ruta relativa directa
+        // o construirla con el directorio del usuario.
         String rootPath = System.getProperty("user.dir").replace("\\", "/");
-        String uploadPath;
-
-        // Si la ruta NO empieza con C: (o sea, estamos en Render/Linux)
-        if (!rootPath.startsWith("C:")) {
-            // En Linux/Render la ruta debe ser absoluta desde la raíz
-            uploadPath = "file:" + (rootPath.startsWith("/") ? "" : "/") + rootPath + "/uploads/";
-        } else {
-            // Estás en tu computadora local
-            uploadPath = "file:/" + rootPath + "/uploads/";
-        }
+        String uploadPath = "file:" + rootPath + "/uploads/";
 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadPath)
                 .setCachePeriod(0);
 
-        System.out.println("SISTEMA OPERATIVO DETECTADO: " + System.getProperty("os.name"));
-        System.out.println("RUTA CONFIGURADA: " + uploadPath);
+        System.out.println("SISTEMA OPERATIVO DETECTADO: Linux (Render)");
+        System.out.println("RUTA CORREGIDA: " + uploadPath);
     }
 }

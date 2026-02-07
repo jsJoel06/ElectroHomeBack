@@ -12,21 +12,20 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Detectamos la ruta base del proyecto
-        String userDir = System.getProperty("user.dir").replace("\\", "/");
 
-        // Ajuste para Linux/Render: debe empezar con /
-        String formattedPath = userDir.startsWith("/") ? userDir : "/" + userDir;
+        String uploadDir;
 
-        // Ruta final para el manejador
-        String uploadPath = "file:" + formattedPath + "/uploads/";
+        if (System.getenv("RENDER") != null) {
+            uploadDir = "/tmp/uploads/";
+        } else {
+            uploadDir = Paths.get("uploads").toAbsolutePath().toString() + "/";
+        }
 
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(uploadPath)
+                .addResourceLocations("file:" + uploadDir)
                 .setCachePeriod(0);
 
-        System.out.println("--- VERIFICACIÓN DE DESPLIEGUE ---");
-        System.out.println("SISTEMA OPERATIVO: " + System.getProperty("os.name"));
-        System.out.println("RUTA DE IMÁGENES: " + uploadPath);
+        System.out.println("RUTA UPLOADS: " + uploadDir);
     }
+
 }

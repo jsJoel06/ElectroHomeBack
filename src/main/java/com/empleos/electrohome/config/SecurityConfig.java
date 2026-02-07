@@ -10,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,22 +38,26 @@ public class SecurityConfig implements WebMvcConfigurer {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/uploads/**").permitAll()
+                        // 1. Público: Ver imágenes y productos
+                        .requestMatchers("/api/imagenes/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/productos/**",
-                                "/api/categorias/**"
-                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/categorias/**").permitAll()
+
+                        // 2. Protegido: Solo ADMIN puede crear o editar
                         .requestMatchers(HttpMethod.POST, "/api/productos/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasAuthority("ADMIN")
+
+                        // 3. Todo lo demás requiere estar logueado
                         .anyRequest().authenticated()
                 )
+                // ESTO ES LO QUE FALTA: Permite autenticación básica para pruebas y nube
+                .httpBasic(org.springframework.security.config.Customizer.withDefaults())
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .build();
     }
-
 
 
     @Bean

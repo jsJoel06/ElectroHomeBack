@@ -58,31 +58,38 @@ public class ProductoController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> save(
-            @RequestParam("producto") String productoJson, // CAMBIADO A @RequestParam
-            @RequestParam("imagen") MultipartFile imagen   // CAMBIADO A @RequestParam
+            @RequestParam("producto") String productoJson,
+            @RequestParam("imagen") MultipartFile imagen
     ){
         try {
+            // 1. Convertimos el String JSON a objeto Java
             Producto producto = objectMapper.readValue(productoJson, Producto.class);
-            // Recuerda que el repositorio estándar no acepta (producto, imagen)
-            // Esto debe ir a un servicio que maneje el archivo.
+
+            // 2. ¡OJO! Debes llamar al SERVICE, no al Repository.
+            // El repositorio de Spring no sabe qué hacer con un MultipartFile.
             Producto productoGuardado = productoRepository.save(producto, imagen);
+
             return ResponseEntity.ok(productoGuardado);
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+            return ResponseEntity.status(500).body("Error al guardar: " + e.getMessage());
         }
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Producto> update(
+    public ResponseEntity<?> update(
             @PathVariable Long id,
-            @RequestPart("producto") Producto producto ,
+            @RequestPart("producto") String productoJson, // Consistencia con el save
             @RequestPart(value = "imagen", required = false) MultipartFile imagen
-    ) throws Exception {
-        producto.setId(id);
-        return ResponseEntity.ok(productoRepository.update(id, producto, imagen));
+    ) {
+        try {
+            Producto producto = objectMapper.readValue(productoJson, Producto.class);
+            // Llamamos al método update del SERVICE que corregimos antes
+            Producto productoActualizado = productoRepository.update(id, producto, imagen);
+            return ResponseEntity.ok(productoActualizado);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al actualizar: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")

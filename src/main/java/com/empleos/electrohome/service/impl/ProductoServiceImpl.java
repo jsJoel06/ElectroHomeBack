@@ -10,10 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,41 +19,31 @@ public class ProductoServiceImpl implements ProductoService {
     @Autowired
     private ProductoRepository productoRepository;
 
-    private final Path root = Paths.get(
-            System.getenv("RENDER") != null ? "/tmp/uploads" : "uploads"
-    );
-
 
     @Override
     @Transactional
     public Producto save(Producto producto, MultipartFile imagen) throws Exception {
-
-        if (!Files.exists(root)) {
-            Files.createDirectories(root);
-        }
-
-
-        String nombreImagen = System.currentTimeMillis() + "_" + imagen.getOriginalFilename();
-        Path rutaDestino = root.resolve(nombreImagen);
-
         try {
 
-            Files.copy(imagen.getInputStream(), rutaDestino);
+            byte[] bytesImagen = imagen.getBytes();
 
 
-            Fotos nuevaFoto = new Fotos(nombreImagen, producto);
+            Fotos nuevaFoto = new Fotos(bytesImagen, producto);
+
             if (producto.getFotos() == null) {
                 producto.setFotos(new ArrayList<>());
             }
+
+
             producto.getFotos().add(nuevaFoto);
 
 
             return productoRepository.save(producto);
 
+        } catch (IOException e) {
+            throw new Exception("Error al procesar los bytes de la imagen: " + e.getMessage());
         } catch (Exception e) {
-
-            Files.deleteIfExists(rutaDestino);
-            throw new Exception("Error al guardar el producto: " + e.getMessage());
+            throw new Exception("Error al guardar el producto en la base de datos: " + e.getMessage());
         }
     }
 
@@ -99,9 +85,11 @@ public class ProductoServiceImpl implements ProductoService {
     @Transactional
     public Producto update(Long id, Producto producto, MultipartFile imagen) throws Exception {
 
+        // 1. Buscamos el producto existente
         Producto productoActualizado = productoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
+        // 2. Actualizamos los campos básicos
         productoActualizado.setNombre(producto.getNombre());
         productoActualizado.setMarca(producto.getMarca());
         productoActualizado.setPrecio(producto.getPrecio());
@@ -109,26 +97,29 @@ public class ProductoServiceImpl implements ProductoService {
         productoActualizado.setDescripcion(producto.getDescripcion());
         productoActualizado.setCategoria(producto.getCategoria());
 
+        // 3. Manejo de la imagen en base de datos
         if (imagen != null && !imagen.isEmpty()) {
+            try {
+                // Extraemos los bytes reales
+                byte[] bytesImagen = imagen.getBytes();
 
-            if (!Files.exists(root)) {
-                Files.createDirectories(root);
+                // Opción: Limpiar fotos anteriores antes de agregar la nueva (si solo quieres una foto)
+                if (productoActualizado.getFotos() != null) {
+                    productoActualizado.getFotos().clear();
+                } else {
+                    productoActualizado.setFotos(new ArrayList<>());
+                }
+
+                // Creamos la nueva entidad Fotos con los bytes
+                Fotos nuevaFoto = new Fotos(bytesImagen, productoActualizado);
+                productoActualizado.getFotos().add(nuevaFoto);
+
+            } catch (IOException e) {
+                throw new Exception("Error al procesar la imagen: " + e.getMessage());
             }
-
-            String nombreImagen = System.currentTimeMillis() + "_" + imagen.getOriginalFilename();
-            Path rutaDestino = root.resolve(nombreImagen);
-
-            Files.copy(imagen.getInputStream(), rutaDestino, StandardCopyOption.REPLACE_EXISTING);
-
-            Fotos nuevaFoto = new Fotos(nombreImagen, productoActualizado);
-
-            if (productoActualizado.getFotos() == null) {
-                productoActualizado.setFotos(new ArrayList<>());
-            }
-
-            productoActualizado.getFotos().add(nuevaFoto);
         }
 
+        // 4. Guardamos en Neon
         return productoRepository.save(productoActualizado);
     }
 

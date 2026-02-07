@@ -1,10 +1,13 @@
 package com.empleos.electrohome.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.type.descriptor.jdbc.VarbinaryJdbcType;
 
 @Data
 @Entity
@@ -17,15 +20,18 @@ public class Fotos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String imagenUrl;
+    @Column(name = "imagen_url")
+    @JdbcType(VarbinaryJdbcType.class) // Esto obliga a Hibernate a enviar bytes, no números
+    @JsonIgnore
+    private byte[] imagenUrl;
 
     @ManyToOne
     @JoinColumn(name = "producto_id")
     @JsonIgnoreProperties("fotos")
     private Producto producto;
 
-    public Fotos(String imagenUrl, Producto producto) {
-        this.imagenUrl = imagenUrl;
+    public Fotos(byte[] imagenData, Producto producto) {
+        this.imagenUrl = imagenData;
         this.producto = producto;
     }
 }

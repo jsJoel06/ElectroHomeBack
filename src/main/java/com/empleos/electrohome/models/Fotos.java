@@ -22,7 +22,6 @@ public class Fotos {
 
     @Column(name = "imagen_url")
     @JdbcType(VarbinaryJdbcType.class) // Esto obliga a Hibernate a enviar bytes, no números
-    @JsonIgnore
     private byte[] imagenUrl;
 
     @ManyToOne

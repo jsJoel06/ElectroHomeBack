@@ -8,8 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 import java.util.Optional;
 
 @RestController
@@ -17,7 +16,6 @@ import java.util.Optional;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ImagenController {
 
-    private final Path root = Paths.get("uploads");
 
     @Autowired
     private FotoRepository fotoRepository;

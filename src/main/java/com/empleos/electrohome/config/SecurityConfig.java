@@ -51,12 +51,19 @@ public class SecurityConfig implements WebMvcConfigurer {
 
                         .anyRequest().authenticated()
                 )
-                // Usamos Basic Auth en lugar de FormLogin para evitar redirecciones
+                // IMPORTANTE: Reactiva Basic Auth para que el AddForm pueda enviar tus credenciales ADMIN
+                .httpBasic(Customizer.withDefaults())
 
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .build();
+    }
+
+    // ESTO ES LO QUE ELIMINA EL ERROR 403 EN LA NUBE
+    @Bean
+    public org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers("/uploads/**");
     }
 
     @Bean

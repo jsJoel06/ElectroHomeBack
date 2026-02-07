@@ -12,18 +12,21 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Esto obtiene la ruta de la raíz de tu proyecto (donde está el pom.xml y la carpeta uploads)
-        String rootPath = System.getProperty("user.dir");
+        // Detectamos la ruta base del proyecto
+        String userDir = System.getProperty("user.dir").replace("\\", "/");
 
-        // Construimos la ruta: file:/opt/render/project/src/uploads/
-        String uploadPath = "file:" + rootPath + "/uploads/";
+        // Ajuste para Linux/Render: debe empezar con /
+        String formattedPath = userDir.startsWith("/") ? userDir : "/" + userDir;
+
+        // Ruta final para el manejador
+        String uploadPath = "file:" + formattedPath + "/uploads/";
 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadPath)
                 .setCachePeriod(0);
 
-        System.out.println("--- CONFIGURACIÓN NUBE ---");
-        System.out.println("RAÍZ DEL PROYECTO: " + rootPath);
-        System.out.println("BUSCANDO FOTOS EN: " + uploadPath);
+        System.out.println("--- VERIFICACIÓN DE DESPLIEGUE ---");
+        System.out.println("SISTEMA OPERATIVO: " + System.getProperty("os.name"));
+        System.out.println("RUTA DE IMÁGENES: " + uploadPath);
     }
 }

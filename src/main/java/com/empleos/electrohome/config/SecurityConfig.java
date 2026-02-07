@@ -51,8 +51,6 @@ public class SecurityConfig implements WebMvcConfigurer {
 
                         .anyRequest().authenticated()
                 )
-                // IMPORTANTE: Reactiva Basic Auth para que el AddForm pueda enviar tus credenciales ADMIN
-                .httpBasic(Customizer.withDefaults())
 
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

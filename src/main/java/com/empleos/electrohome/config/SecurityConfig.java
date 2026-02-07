@@ -40,17 +40,17 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        // Permitimos las fotos y la API de lectura sin login
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/categorias/**").permitAll()
+                        .requestMatchers("/error").permitAll() // <--- AGREGA ESTA LÍNEA
 
-                        // Protegemos el AddForm (Guardar/Editar)
                         .requestMatchers(HttpMethod.POST, "/api/productos/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasAuthority("ADMIN")
-
                         .anyRequest().authenticated()
                 )
+                // IMPORTANTE: Reactiva Basic Auth para que el AddForm pueda enviar tus credenciales ADMIN
+                .httpBasic(Customizer.withDefaults())
 
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

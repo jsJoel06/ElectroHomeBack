@@ -23,7 +23,10 @@ public class ProductoServiceImpl implements ProductoService {
     @Autowired
     private ProductoRepository productoRepository;
 
-    private final Path root = Paths.get("uploads");
+    private final Path root = Paths.get(
+            System.getenv("RENDER") != null ? "/tmp/uploads" : "uploads"
+    );
+
 
     @Override
     @Transactional

@@ -12,17 +12,18 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Esta línea es la clave: obtenemos la ruta absoluta del sistema
-        String rootPath = new File("uploads").getAbsolutePath();
+        // Esto obtiene la ruta de la raíz de tu proyecto (donde está el pom.xml y la carpeta uploads)
+        String rootPath = System.getProperty("user.dir");
 
-        // Construimos la URL asegurándonos de que tenga el formato file:/ruta/en/linux
-        String uploadPath = "file:" + (rootPath.startsWith("/") ? "" : "/") + rootPath + "/";
+        // Construimos la ruta: file:/opt/render/project/src/uploads/
+        String uploadPath = "file:" + rootPath + "/uploads/";
 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadPath)
                 .setCachePeriod(0);
 
-        System.out.println("SISTEMA OPERATIVO DETECTADO: Linux (Render)");
-        System.out.println("RUTA REAL APLICADA: " + uploadPath);
+        System.out.println("--- CONFIGURACIÓN NUBE ---");
+        System.out.println("RAÍZ DEL PROYECTO: " + rootPath);
+        System.out.println("BUSCANDO FOTOS EN: " + uploadPath);
     }
 }

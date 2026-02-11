@@ -5,7 +5,6 @@ import com.empleos.electrohome.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.ObjectMapper;
@@ -30,29 +29,29 @@ public class ProductoController {
                 : ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/categoria")
-    public ResponseEntity<List<Producto>> findByCategoria(String categoria){
+    @GetMapping("/categoria/{categoria}")
+    public ResponseEntity<List<Producto>> findByCategoria(@PathVariable String categoria){
         List<Producto> productos = productoRepository.findByCategoria(categoria);
         return  productos != null ? ResponseEntity.ok(productos)
                 : ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/nombre")
-    public ResponseEntity<List<Producto>> findByNombre(String nombre){
+    @GetMapping("/nombre/{nombre}")
+    public ResponseEntity<List<Producto>> findByNombre(@PathVariable String nombre){
         List<Producto> productos = productoRepository.findByNombre(nombre);
         return  productos != null ? ResponseEntity.ok(productos)
                 : ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/marca")
-    public ResponseEntity<List<Producto>> findByMarca(String marca){
+    @GetMapping("/marca/{marca}")
+    public ResponseEntity<List<Producto>> findByMarca(@PathVariable String marca){
         List<Producto> productos = productoRepository.findByMarca(marca);
         return  productos != null ? ResponseEntity.ok(productos)
                 : ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/id")
-    private ResponseEntity<Producto> findById(Long id){
+    @GetMapping("/{id}")
+    private ResponseEntity<Producto> findById(@PathVariable Long id){
         Producto producto = productoRepository.findById(id);
         return ResponseEntity.ok(producto);
     }

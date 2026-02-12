@@ -13,7 +13,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/productos")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(
+        origins = "https://tu-url-de-render.onrender.com",
+        allowedHeaders = "*",
+        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+        allowCredentials = "true"
+)
 public class ProductoController {
 
     @Autowired

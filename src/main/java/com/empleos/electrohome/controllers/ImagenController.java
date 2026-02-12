@@ -13,7 +13,12 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/imagenes")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(
+        origins = "https://tu-url-de-render.onrender.com",
+        allowedHeaders = "*",
+        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+        allowCredentials = "true"
+)
 public class ImagenController {
 
 

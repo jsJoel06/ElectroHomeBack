@@ -23,12 +23,18 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(
+        origins = "https://tu-url-de-render.onrender.com",
+        allowedHeaders = "*",
+        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+        allowCredentials = "true"
+)
 public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    
     @Autowired
     private PasswordEncoder passwordEncoder;
 

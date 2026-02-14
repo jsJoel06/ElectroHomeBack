@@ -21,7 +21,8 @@ public class Fotos {
     private Long id;
 
     @Column(name = "imagen_url")
-    @JdbcType(VarbinaryJdbcType.class) // Esto obliga a Hibernate a enviar bytes, no números
+    @JdbcType(VarbinaryJdbcType.class)
+    @JsonIgnore// Esto obliga a Hibernate a enviar bytes, no números
     private byte[] imagenUrl;
 
     @ManyToOne

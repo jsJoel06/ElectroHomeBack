@@ -1,5 +1,6 @@
 package com.empleos.electrohome.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ public class Pedido {
     private String emailCliente;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<DetallePedido> detalles;
 }
 

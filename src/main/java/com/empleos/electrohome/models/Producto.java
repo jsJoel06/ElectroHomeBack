@@ -33,7 +33,7 @@ public class Producto {
     private String descripcion;
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties
+    @JsonIgnoreProperties("producto")
     private List<Fotos> fotos;
 
 }

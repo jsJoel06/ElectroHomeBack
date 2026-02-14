@@ -34,11 +34,10 @@ public class PedidoServiceImpl implements PedidoService {
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
     }
 
-
     @Override
     public Pedido crearPedido(String nombre, String telefono, String email, String direccion) {
         Pedido pedido = new Pedido();
-        pedido.setEstado(EPedido.PENDIENTE);
+        pedido.setEstado(EPedido.PENDIENTE); // Estado inicial correcto
         pedido.setFechaPedido(LocalDateTime.now());
         pedido.setNombreCliente(nombre);
         pedido.setTelefonoCliente(telefono);
@@ -49,13 +48,23 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
-    @Transactional
+    @Transactional // Importante: Si falla la resta de stock, no se agrega el producto
     public Pedido agregarProducto(Long pedidoId, Long productoId, Integer cantidad) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
 
         Producto producto = productoRepository.findById(productoId)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        // --- LÓGICA DE STOCK ---
+        if (producto.getStock() < cantidad) {
+            throw new RuntimeException("Stock insuficiente. Solo quedan " + producto.getStock() + " unidades de " + producto.getNombre());
+        }
+
+        // Restamos el stock del producto
+        producto.setStock(producto.getStock() - cantidad);
+        productoRepository.save(producto); // Actualizamos el producto en la DB
+        // -----------------------
 
         DetallePedido detallePedido = new DetallePedido();
         detallePedido.setPedido(pedido);
@@ -65,10 +74,12 @@ public class PedidoServiceImpl implements PedidoService {
 
         pedido.getDetalles().add(detallePedido);
 
+        // Recalculamos el total
         double total = pedido.getDetalles().stream()
-                .mapToDouble( d -> d.getCantidad() * d.getPrecioUnitario())
+                .mapToDouble(d -> d.getCantidad() * d.getPrecioUnitario())
                 .sum();
         pedido.setTotal(total);
+
         return pedidoRepository.save(pedido);
     }
 
@@ -77,7 +88,9 @@ public class PedidoServiceImpl implements PedidoService {
         Pedido pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
 
-        pedido.setEstado(EPedido.ENTREGADO);
+        // Al confirmar, el pedido sigue PENDIENTE de envío, no ENTREGADO aún.
+        // Solo lo marcamos como ENTREGADO cuando el repartidor termine.
+        pedido.setEstado(EPedido.PENDIENTE);
         return pedidoRepository.save(pedido);
     }
 }

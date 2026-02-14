@@ -27,7 +27,6 @@ public class SecurityConfig {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
-
     @Bean
     public AuthenticationManager manager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
@@ -41,18 +40,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                // Se conecta con el método corsConfigurationSource() de abajo
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // CORS preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Públicos
                         .requestMatchers("/api/pedidos/**").permitAll()
                         .requestMatchers("/api/imagenes/**", "/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/categorias/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/productos/**",
+                                "/api/categorias/**"
+                        ).permitAll()
 
-                        // Protegido: Aceptamos ADMIN o ROLE_ADMIN
-                        .requestMatchers(HttpMethod.POST, "/api/productos/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+                        // Protegidos (ADMIN)
+                        .requestMatchers(HttpMethod.POST, "/api/productos/**")
+                        .hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/productos/**")
+                        .hasAnyAuthority("ADMIN", "ROLE_ADMIN")
 
                         .anyRequest().authenticated()
                 )
@@ -63,14 +69,28 @@ public class SecurityConfig {
                 .build();
     }
 
-    // ESTE ES EL MÉTODO QUE "NO ENCONTRABA" EL COMPILADOR
+    // ✅ CORS CORRECTO PARA LOCAL + PRODUCCIÓN
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
-        config.setAllowCredentials(true);
+
+        config.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",
+                "https://electrohomes.onrender.com"
+        ));
+
+        config.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "DELETE", "OPTIONS"
+        ));
+
+        config.setAllowedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "Accept"
+        ));
+
+        // 🔴 IMPORTANTE
+        config.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -79,10 +99,9 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider provider(PasswordEncoder encoder) {
-        // Pasamos userDetailsService directamente al constructor para cumplir con el requerimiento
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider authProvider =
+                new DaoAuthenticationProvider(userDetailsService);
         authProvider.setPasswordEncoder(encoder);
         return authProvider;
     }
-
 }

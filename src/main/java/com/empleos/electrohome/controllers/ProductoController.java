@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/productos")
 @CrossOrigin(
-        origins = "https://tu-url-de-render.onrender.com",
+        origins = "https://electrohomes.onrender.com",
         allowedHeaders = "*",
         methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
         allowCredentials = "true"

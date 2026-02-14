@@ -4,6 +4,8 @@ import com.empleos.electrohome.service.PedidoService;
 import org.springframework.web.bind.annotation.*;
 import com.empleos.electrohome.models.Pedido;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/pedidos")
 @CrossOrigin(
@@ -18,6 +20,11 @@ public class PedidoController {
 
     public PedidoController(PedidoService pedidoService) {
         this.pedidoService = pedidoService;
+    }
+
+    @GetMapping("/cliente/{email:.+}") // <-- Agrega el :.+
+    public List<Pedido> listarPedidosPorCliente(@PathVariable String email) {
+        return pedidoService.findByEmailCliente(email);
     }
 
     @GetMapping("/{pedidoId}")

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class PedidoServiceImpl implements PedidoService {
@@ -21,6 +22,11 @@ public class PedidoServiceImpl implements PedidoService {
 
     @Autowired
     private ProductoRepository productoRepository;
+
+    @Override
+    public List<Pedido> findByEmailCliente(String emailCliente) {
+        return pedidoRepository.findByEmailCliente(emailCliente);
+    }
 
     @Override
     public Pedido obtenerPedido(Long pedidoId) {

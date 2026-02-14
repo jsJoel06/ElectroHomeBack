@@ -20,9 +20,11 @@ public class Fotos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Lob // Añade esto para indicar que es un objeto grande
+    @Basic(fetch = FetchType.LAZY) // <--- ESTO ES CLAVE
     @Column(name = "imagen_url")
     @JdbcType(VarbinaryJdbcType.class)
-    @JsonIgnore// Esto obliga a Hibernate a enviar bytes, no números
+    @JsonIgnore
     private byte[] imagenUrl;
 
     @ManyToOne

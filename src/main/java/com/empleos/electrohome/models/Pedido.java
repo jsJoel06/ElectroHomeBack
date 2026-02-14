@@ -29,7 +29,6 @@ public class Pedido {
     private String emailCliente;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
-    @JsonManagedReference
     private List<DetallePedido> detalles;
 }
 
